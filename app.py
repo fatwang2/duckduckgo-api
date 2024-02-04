@@ -32,7 +32,7 @@ async def search():
     return {'results': results}
 
 @app.route('/searchNews', methods=['GET', 'POST'])
-async def search():
+async def search_news():
     keywords, max_results = run()
     results = []
     with DDGS() as ddgs:
