@@ -1,5 +1,4 @@
 from itertools import islice
-
 from duckduckgo_search import DDGS
 from flask import Flask, request
 
@@ -8,8 +7,9 @@ app = Flask(__name__)
 
 def run():
     if request.method == 'POST':
-        keywords = request.form['q']
-        max_results = int(request.form.get('max_results', 10))
+        data = request.get_json()  # 获取 JSON 数据
+        keywords = data['q']
+        max_results = int(data.get('max_results', 10))
     else:
         keywords = request.args.get('q')
         # 从请求参数中获取最大结果数，如果未指定，则默认为10
@@ -23,7 +23,7 @@ async def search():
     results = []
     with DDGS() as ddgs:
         # 使用DuckDuckGo搜索关键词
-        ddgs_gen = ddgs.text(keywords, safesearch='Off', timelimit='y', backend="lite")
+        ddgs_gen = ddgs.text(keywords, region="cn-zh",safesearch='Off', timelimit='y', backend="lite")
         # 从搜索结果中获取最大结果数
         for r in islice(ddgs_gen, max_results):
             results.append(r)
@@ -31,6 +31,18 @@ async def search():
     # 返回一个json响应，包含搜索结果
     return {'results': results}
 
+@app.route('/searchNews', methods=['GET', 'POST'])
+async def search():
+    keywords, max_results = run()
+    results = []
+    with DDGS() as ddgs:
+        # 使用DuckDuckGo搜索关键词
+        ddgs_news_gen = ddgs.news(keywords, region="cn-zh", safesearch="off", timelimit="m")
+        # 从搜索结果中获取最大结果数
+        for r in islice(ddgs_news_gen, max_results):
+            results.append(r)
+    # 返回一个json响应，包含搜索结果
+    return {'results': results}
 
 @app.route('/searchAnswers', methods=['GET', 'POST'])
 async def search_answers():
