@@ -23,7 +23,7 @@ async def search():
     results = []
     with DDGS() as ddgs:
         # 使用DuckDuckGo搜索关键词
-        ddgs_gen = ddgs.text(keywords,safesearch='Off', timelimit='y', backend="lite")
+        ddgs_gen = ddgs.text(keywords,safesearch='Off', timelimit='y')
         # 从搜索结果中获取最大结果数
         for r in islice(ddgs_gen, max_results):
             results.append(r)
